@@ -34,10 +34,10 @@ sed -i "/helloworld/d" "feeds.conf.default"
 echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
 sed -i "/openclash/d" "feeds.conf.default"
 echo "src-git openclash https://github.com/vernesong/OpenClash.git" >> "feeds.conf.default"
-sed -i "/passwall/d" "feeds.conf.default"
-echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> "feeds.conf.default"
-sed -i "/passwall2/d" "feeds.conf.default"
-echo "src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2.git" >> "feeds.conf.default"
+#sed -i "/passwall/d" "feeds.conf.default"
+#echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> "feeds.conf.default"
+#sed -i "/passwall2/d" "feeds.conf.default"
+#echo "src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2.git" >> "feeds.conf.default"
 echo -e '***Done***\n'
 
 echo 'Modify Default IP...'
