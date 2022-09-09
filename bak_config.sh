@@ -19,8 +19,21 @@ CURRENT_DIR=$(cd $(dirname $0); pwd)
 CONF_DIR=$CURRENT_DIR/config_bak
 
 if [ ! -d $CONF_DIR ]; then
-    mkdir $CONF_DIR
+    mkdir -p $CONF_DIR
 fi
 
 configfile=${INPUT}_config_$(date "+%Y-%m-%d_%H:%M")
-cp $CURRENT_DIR/$INPUT/.config $CONF_DIR/$configfile
+
+diff -uEZbBw $CONF_DIR/${INPUT}_config $CURRENT_DIR/$INPUT/.config 2>/dev/null
+
+if [ $? -ne 0 ];then
+    cp $CURRENT_DIR/$INPUT/.config $CONF_DIR/$configfile >/dev/null 2>&1
+    if [ $? -eq 0 ];then
+        ln -snf $CONF_DIR/$configfile $CONF_DIR/${INPUT}_config
+        echo "Backup full config success"
+    else
+        echo "Backup full config fail"
+    fi
+else
+    echo "The same configuration file already exists"
+fi
