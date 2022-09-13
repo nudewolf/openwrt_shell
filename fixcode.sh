@@ -19,15 +19,15 @@ CURRENT_DIR=$(cd $(dirname $0); pwd)
 CONF_DIR=$CURRENT_DIR/config_bak
 
 cd $CURRENT_DIR/$INPUT
-echo 'Reset Openwrt Source...'
 
-./scripts/feeds clean
-if [ $? -ne 0 ];then
+if [ ! -f ./scripts/feeds ];then
     echo " $INPUT is not openwrt"
     exit 1
 fi
 
-git fetch --all && git reset --hard origin/HEAD && git pull
+echo 'Reset Openwrt Source...'
+
+git fetch --all && git reset --hard HEAD && git pull
 
 echo -e '***Done***\n'
 
@@ -48,7 +48,6 @@ case $input in
 		;;
 
 	[nN][oO]|[nN])
-		exit 0
 		;;
 
 	*)
@@ -68,7 +67,6 @@ case $input in
 		;;
 
 	[nN][oO]|[nN])
-		exit 0
 		;;
 	
 	*)
@@ -76,3 +74,19 @@ case $input in
 		exit 1
 		;;
 esac
+
+echo 'Reset feeds'
+./scripts/feeds clean
+./scripts/feeds update -a && ./scripts/feeds install -a
+echo -e '***Done***\n'
+
+#rm .config > /dev/null 2>&1
+
+if [ -L $CONF_DIR/${INPUT}_defconfig ]; then
+    echo 'restore last config'
+    cp $CONF_DIR/${INPUT}_defconfig .config
+else
+    echo "restore default config"
+fi
+
+make defconfig

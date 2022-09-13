@@ -1,4 +1,4 @@
-e!/usr/bin/env bash
+#!/usr/bin/env bash
 if [ $# != 1 ] ; then
     echo "USAGE: $0 target"
     echo " e.g.: $0 lede"
@@ -33,15 +33,6 @@ echo 'Update Feeds...'
 echo -e '***Done***\n'
 
 echo 'Now Check config...'
-if [ ! -f .config ]; then
-    if [ -L $CONF_DIR/${INPUT}_defconfig ]; then
-        echo '.config not found, restore last config'
-        cp $CONF_DIR/${INPUT}_defconfig .config
-    else
-        echo ".config not found, restore default config"
-    fi
-fi
-
 make defconfig
 if [ $? -ne 0 ];then
     echo " make  -- error"
