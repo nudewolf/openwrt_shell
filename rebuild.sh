@@ -20,10 +20,6 @@ CONF_DIR=$CURRENT_DIR/config_bak
 
 cd $CURRENT_DIR/$INPUT
 
-echo 'Now Clean temp Dir'
-rm -rf tmp
-echo -e '***Done***\n'
-
 echo 'Update Openwrt Source...'
 git pull
 echo -e '***Done***\n'
@@ -44,6 +40,10 @@ read -r -p "Do you want Rebuild ? [Y/n] " input
 
 case $input in
     [yY][eE][sS]|[yY])
+        echo 'Now Clean temp Dir'
+        rm -rf tmp
+        echo -e '***Done***\n'
+
         echo 'Rebuilding Now, Please Wait...'
         make -j$(($(nproc) + 1)) V=s
         if [ $? -ne 0 ];then
