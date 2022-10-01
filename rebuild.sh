@@ -36,60 +36,66 @@ if [ $? -ne 0 ];then
 fi
 
 # read -n 1 -s -p "Press any key to continue..."
-read -r -p "Do you want Rebuild ? [Y/n] " input
+if read -t 3 -rp "Do you want Rebuild ? [Y/n] " input; then
+    case $input in
+        [yY][eE][sS]|[yY])
+            echo 'Now Clean temp Dir'
+            rm -rf tmp
+            echo -e '***Done***\n'
 
-case $input in
-    [yY][eE][sS]|[yY])
-        echo 'Now Clean temp Dir'
-        rm -rf tmp
-        echo -e '***Done***\n'
+            echo 'Rebuilding Now, Please Wait...'
+            make -j$(($(nproc) + 1)) V=s
+            if [ $? -ne 0 ];then
+                echo " make  -- error"
+                exit 1
+            fi
+            ;;
 
-        echo 'Rebuilding Now, Please Wait...'
-        make -j$(($(nproc) + 1)) V=s
-        if [ $? -ne 0 ];then
-            echo " make  -- error"
+        [nN][oO]|[nN])
+            exit 0
+            ;;
+
+        *)
+            echo "Invalid input..."
             exit 1
-        fi
-        ;;
+            ;;
+    esac
+else
+    printf "\n"
+    exit 0
+fi
 
-    [nN][oO]|[nN])
-        exit 0
-        ;;
+if read -t 3 -rp "The build succeeded, Do you want Backup config? [Y/n] " input; then
+    case $input in
+        [yY][eE][sS]|[yY])
+            configfile=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
+            ./scripts/diffconfig.sh > /tmp/$configfile
+            if [ $? -ne 0 ];then
+                echo "./scripts/diffconfig.sh error, please check!"
+                exit 1
+            fi
 
-    *)
-        echo "Invalid input..."
-        exit 1
-        ;;
-esac
+            diff -uEZbBw $CONF_DIR/${INPUT}_defconfig /tmp/$configfile 2>/dev/null
 
-read -r -p "The build succeeded, Do you want Backup config? [Y/n] " input
+            if [ $? -ne 0 ];then
+                echo '.config is change,Backup...'
+                mv /tmp/$configfile $CONF_DIR/
+                ln -snf $CONF_DIR/$configfile $CONF_DIR/${INPUT}_defconfig
+            else
+                echo "The same configuration file already exists"
+                rm /tmp/$configfile
+            fi
+            ;;
 
-case $input in
-    [yY][eE][sS]|[yY])
-        configfile=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
-        ./scripts/diffconfig.sh > /tmp/$configfile
-        if [ $? -ne 0 ];then
-            echo "./scripts/diffconfig.sh error, please check!"
+        [nN][oO]|[nN])
+            ;;
+
+        *)
+            echo "Invalid input..."
             exit 1
-        fi
+            ;;
+    esac
+else
+    printf "\n"
+fi
 
-        diff -uEZbBw $CONF_DIR/${INPUT}_defconfig /tmp/$configfile 2>/dev/null
-
-        if [ $? -ne 0 ];then
-            echo '.config is change,Backup...'
-            mv /tmp/$configfile $CONF_DIR/
-            ln -snf $CONF_DIR/$configfile $CONF_DIR/${INPUT}_defconfig
-        else
-            echo "The same configuration file already exists"
-            rm /tmp/$configfile
-        fi
-        ;;
-
-    [nN][oO]|[nN])
-        ;;
-
-    *)
-        echo "Invalid input..."
-        exit 1
-        ;;
-esac
