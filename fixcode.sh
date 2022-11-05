@@ -16,7 +16,7 @@ if [ `echo ${INPUT: -1}` = "/" ]; then
 fi
 
 CURRENT_DIR=$(cd $(dirname $0); pwd)
-CONF_DIR=$CURRENT_DIR/config_bak
+CONF_DIR=$CURRENT_DIR/config_bak/${INPUT}
 
 cd $CURRENT_DIR/$INPUT
 
@@ -52,24 +52,41 @@ case $input in
         ;;
 esac
 
-# read -r -p "Modify Default IP ? [Y/n] " input
+read -r -p "Do you have custom config files ? [Y/n] " input
 
-# case $input in
-#    [yY][eE][sS]|[yY])
-#        echo 'Modify Default IP...'
-#	    sed -i "s/192.168.1.1/10.0.0.2/;s/192.168/10.0/" package/base-files/files/bin/config_generate
+case $input in
+    [yY][eE][sS]|[yY])
+        echo 'Add custom config files...'
+        ln -sf $CONF_DIR/files
 
-#        echo -e '***Done***\n'
-#	    ;;
+        echo -e '***Done***\n'
+       ;;
 
-#    [nN][oO]|[nN])
-#        ;;
-	
-#    *)
-#        echo "Invalid input..."
-#        exit 1
-#        ;;
-# esac
+    [nN][oO]|[nN])
+        read -r -p "Modify Default IP ? [Y/n] " input
+        case $input in
+            [yY][eE][sS]|[yY])
+                echo 'Modify Default IP...'
+                sed -i "s/192.168.1.1/10.0.0.2/;s/192.168/10.0/" package/base-files/files/bin/config_generate
+
+                echo -e '***Done***\n'
+                ;;
+
+            [nN][oO]|[nN])
+                ;;
+
+            *)
+                echo "Invalid input..."
+                exit 1
+                ;;
+        esac
+        ;;
+
+    *)
+        echo "Invalid input..."
+        exit 1
+        ;;
+esac
 
 read -r -p "Reset feeds? [Y/n] " input
 
