@@ -16,7 +16,7 @@ if [ `echo ${INPUT: -1}` = "/" ]; then
 fi
 
 CURRENT_DIR=$(cd $(dirname $0); pwd)
-CONF_DIR=$CURRENT_DIR/config_bak
+CONF_DIR=$CURRENT_DIR/config_bak/${INPUT}
 
 if [ ! -d $CONF_DIR ]; then
     mkdir -p $CONF_DIR
