@@ -27,7 +27,7 @@ fi
 
 echo 'Reset Openwrt Source...'
 
-git fetch --all && git reset --hard HEAD && git pull
+git fetch --all && git reset --hard HEAD
 
 echo -e '***Done***\n'
 
@@ -35,58 +35,64 @@ read -r -p "Modify Default Feeds ? [Y/n] " input
 
 case $input in
     [yY][eE][sS]|[yY])
-		echo 'Modify Default Feeds...'
-		sed -i "/helloworld/d" "feeds.conf.default"
-		echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
-		sed -i "/openclash/d" "feeds.conf.default"
-		echo "src-git openclash https://github.com/vernesong/OpenClash.git" >> "feeds.conf.default"
-		#sed -i "/passwall/d" "feeds.conf.default"
-		#echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> "feeds.conf.default"
-		#sed -i "/passwall2/d" "feeds.conf.default"
-		#echo "src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2.git" >> "feeds.conf.default"
-		echo -e '***Done***\n'
-		;;
+        echo 'Modify Default Feeds...'
+        echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
+#       echo "src-git openclash https://github.com/vernesong/OpenClash.git" >> "feeds.conf.default"
+        echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall.git;packages" >> "feeds.conf.default"
+        echo "src-git passwall_luci https://github.com/xiaorouji/openwrt-passwall.git;luci" >> "feeds.conf.default"
+        echo -e '***Done***\n'
+        ;;
 
-	[nN][oO]|[nN])
-		;;
+    [nN][oO]|[nN])
+        ;;
 
-	*)
-		echo "Invalid input..."
-		exit 1
-		;;
+    *)
+        echo "Invalid input..."
+        exit 1
+        ;;
 esac
 
-read -r -p "Modify Default IP ? [Y/n] " input
+# read -r -p "Modify Default IP ? [Y/n] " input
+
+# case $input in
+#    [yY][eE][sS]|[yY])
+#        echo 'Modify Default IP...'
+#	    sed -i "s/192.168.1.1/10.0.0.2/;s/192.168/10.0/" package/base-files/files/bin/config_generate
+
+#        echo -e '***Done***\n'
+#	    ;;
+
+#    [nN][oO]|[nN])
+#        ;;
+	
+#    *)
+#        echo "Invalid input..."
+#        exit 1
+#        ;;
+# esac
+
+read -r -p "Reset feeds? [Y/n] " input
 
 case $input in
     [yY][eE][sS]|[yY])
-		echo 'Modify Default IP...'
-		sed -i "s/192.168.1.1/10.0.0.2/;s/192.168/10.0/" package/base-files/files/bin/config_generate
+        echo 'Reset feeds'
+        ./scripts/feeds clean
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+        echo -e '***Done***\n'
 
-		echo -e '***Done***\n'
-		;;
+        if [ -L $CONF_DIR/${INPUT}_defconfig ]; then
+            echo 'restore last config'
+            cp $CONF_DIR/${INPUT}_defconfig .config
+        else
+            echo "restore default config"
+        fi
+        ;;
 
-	[nN][oO]|[nN])
-		;;
-	
-	*)
-		echo "Invalid input..."
-		exit 1
-		;;
+    [nN][oO]|[nN])
+        ;;
+
+    *)
+        echo "Invalid input..."
+        exit 1
+        ;;
 esac
-
-echo 'Reset feeds'
-./scripts/feeds clean
-./scripts/feeds update -a && ./scripts/feeds install -a
-echo -e '***Done***\n'
-
-#rm .config > /dev/null 2>&1
-
-if [ -L $CONF_DIR/${INPUT}_defconfig ]; then
-    echo 'restore last config'
-    cp $CONF_DIR/${INPUT}_defconfig .config
-else
-    echo "restore default config"
-fi
-
-make defconfig

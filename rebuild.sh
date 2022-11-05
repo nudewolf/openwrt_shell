@@ -16,7 +16,7 @@ if [ `echo ${INPUT: -1}` = "/" ]; then
 fi
 
 CURRENT_DIR=$(cd $(dirname $0); pwd)
-CONF_DIR=$CURRENT_DIR/config_bak
+CONF_DIR=$CURRENT_DIR/config_bak/$INPUT
 
 cd $CURRENT_DIR/$INPUT
 
@@ -36,10 +36,10 @@ if [ $? -ne 0 ];then
 fi
 
 # read -n 1 -s -p "Press any key to continue..."
-if read -t 3 -rp "Do you want Rebuild ? [Y/n] " input; then
+if read -n 1 -t 5 -rp "Do you want Rebuild ? [Y/n] " input; then
     case $input in
         [yY][eE][sS]|[yY])
-            echo 'Now Clean temp Dir'
+            echo -e  '\nNow Clean temp Dir'
             rm -rf tmp
             echo -e '***Done***\n'
 
@@ -52,11 +52,12 @@ if read -t 3 -rp "Do you want Rebuild ? [Y/n] " input; then
             ;;
 
         [nN][oO]|[nN])
+            printf "\n"
             exit 0
             ;;
 
         *)
-            echo "Invalid input..."
+            echo -e  '\nInvalid input...'
             exit 1
             ;;
     esac
@@ -65,37 +66,22 @@ else
     exit 0
 fi
 
-if read -t 3 -rp "The build succeeded, Do you want Backup config? [Y/n] " input; then
-    case $input in
-        [yY][eE][sS]|[yY])
-            configfile=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
-            ./scripts/diffconfig.sh > /tmp/$configfile
-            if [ $? -ne 0 ];then
-                echo "./scripts/diffconfig.sh error, please check!"
-                exit 1
-            fi
+configfile=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
 
-            diff -uEZbBw $CONF_DIR/${INPUT}_defconfig /tmp/$configfile 2>/dev/null
+./scripts/diffconfig.sh > /tmp/$configfile
 
-            if [ $? -ne 0 ];then
-                echo '.config is change,Backup...'
-                mv /tmp/$configfile $CONF_DIR/
-                ln -snf $CONF_DIR/$configfile $CONF_DIR/${INPUT}_defconfig
-            else
-                echo "The same configuration file already exists"
-                rm /tmp/$configfile
-            fi
-            ;;
-
-        [nN][oO]|[nN])
-            ;;
-
-        *)
-            echo "Invalid input..."
-            exit 1
-            ;;
-    esac
-else
-    printf "\n"
+if [ $? -ne 0 ];then
+    echo "./scripts/diffconfig.sh error, please check!"
+    exit 1
 fi
 
+diff -uEZbBw $CONF_DIR/${INPUT}_defconfig /tmp/$configfile 2>/dev/null
+
+if [ $? -ne 0 ];then
+    echo '.config is change,Backup...'
+    mv /tmp/$configfile $CONF_DIR/
+    ln -snf $CONF_DIR/$configfile $CONF_DIR/${INPUT}_defconfig
+else
+    echo "The same configuration file already exists"
+    rm /tmp/$configfile
+fi
