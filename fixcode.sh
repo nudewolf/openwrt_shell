@@ -63,6 +63,10 @@ case $input in
        ;;
 
     [nN][oO]|[nN])
+        if [ -L files ]; then
+            rm files
+        fi
+
         read -r -p "Modify Default IP ? [Y/n] " input
         case $input in
             [yY][eE][sS]|[yY])
