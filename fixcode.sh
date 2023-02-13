@@ -27,7 +27,7 @@ fi
 
 echo 'Reset Openwrt Source...'
 
-git fetch --all && git reset --hard HEAD
+git fetch --all && git reset --hard HEAD && git pull
 
 echo -e '***Done***\n'
 

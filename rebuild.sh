@@ -39,12 +39,12 @@ fi
 if read -n 1 -t 5 -rp "Do you want Rebuild ? [Y/n] " input; then
     case $input in
         [yY][eE][sS]|[yY])
-            echo -e  '\nNow Clean temp Dir'
-            rm -rf tmp
-            echo -e '***Done***\n'
-
-            echo 'Rebuilding Now, Please Wait...'
-            make -j$(($(nproc) + 1)) V=s
+#            echo -e  '\nNow Clean temp Dir'
+#            rm -rf tmp
+#            echo -e '***Done***\n'
+          
+            echo -e '\nRebuilding Now, Please Wait...'
+            make -j$(($(nproc) + 1)) 
             if [ $? -ne 0 ];then
                 echo " make  -- error"
                 exit 1
@@ -57,7 +57,7 @@ if read -n 1 -t 5 -rp "Do you want Rebuild ? [Y/n] " input; then
             ;;
 
         *)
-            echo -e  '\nInvalid input...'
+            echo -e '\nInvalid input...'
             exit 1
             ;;
     esac
