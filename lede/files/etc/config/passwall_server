@@ -1,0 +1,15 @@
+
+config global 'global'
+	option enable '1'
+
+config user '72f581fe020e41d58859b8ac57985014'
+	option log '1'
+	option enable '1'
+	option remarks 'PassWall'
+	option type 'SS'
+	option port '12345'
+	option password '54321'
+	option timeout '300'
+	option tcp_fast_open '1'
+	option method 'aes-128-gcm'
+

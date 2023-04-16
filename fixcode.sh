@@ -27,16 +27,16 @@ fi
 
 echo 'Reset Openwrt Source...'
 
-git fetch --all && git reset --hard HEAD && git pull
+git fetch --all && git clean -df && git reset --hard
 
 echo -e '***Done***\n'
 
-read -r -p "Modify Default Feeds ? [Y/n] " input
+read -r -p "Add GFW Feeds ? [Y/n] " input
 
 case $input in
     [yY][eE][sS]|[yY])
         echo 'Modify Default Feeds...'
-        echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
+#       echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
 #       echo "src-git openclash https://github.com/vernesong/OpenClash.git" >> "feeds.conf.default"
         echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall.git;packages" >> "feeds.conf.default"
         echo "src-git passwall_luci https://github.com/xiaorouji/openwrt-passwall.git;luci" >> "feeds.conf.default"
@@ -97,6 +97,7 @@ read -r -p "Reset feeds? [Y/n] " input
 case $input in
     [yY][eE][sS]|[yY])
         echo 'Reset feeds'
+        rm -rf tmp
         ./scripts/feeds clean
         ./scripts/feeds update -a && ./scripts/feeds install -a
         echo -e '***Done***\n'
@@ -104,16 +105,9 @@ case $input in
         if [ -L $CONF_DIR/${INPUT}_defconfig ]; then
             echo 'restore last config'
             cp $CONF_DIR/${INPUT}_defconfig .config
-        else
-            echo "restore default config"
         fi
         ;;
 
-    [nN][oO]|[nN])
-        ;;
-
     *)
-        echo "Invalid input..."
-        exit 1
         ;;
 esac
