@@ -4,7 +4,7 @@ bak_config()
     if read -n 1 -t 5 -rp "Backup config file now? [Y/n] " input; then
         case $input in
             [yY][eE][sS]|[yY])
-                CONF_DIR=~/openwrt/common/config_bak/${INPUT}
+                CONF_DIR=~/openwrt/common/config/${INPUT}
                 newconfig=./bin/targets/x86/64/config.buildinfo
                 bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
 
