@@ -5,7 +5,7 @@ if [ $# != 1 ] ; then
     exit 1;
 fi
 
-if [ ! -d $1 ]; then
+if [ ! -d ./src/$1 ]; then
     echo "$1 not found! Please check it..."
     exit 1;
 fi
@@ -17,7 +17,7 @@ fi
 
 CURRENT_DIR=$(cd $(dirname $0); pwd)
 
-cd $CURRENT_DIR/$INPUT
+cd $CURRENT_DIR/src/$INPUT
 
 if [ ! -f ./scripts/feeds ];then
     echo " $INPUT is not openwrt"

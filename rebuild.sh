@@ -4,7 +4,7 @@ bak_config()
     if read -n 1 -t 5 -rp "Backup config file now? [Y/n] " input; then
         case $input in
             [yY][eE][sS]|[yY])
-                CONF_DIR=~/openwrt/common/config/${INPUT}
+                CONF_DIR=../../config/${INPUT}
                 newconfig=./bin/targets/x86/64/config.buildinfo
                 bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
 
@@ -32,14 +32,14 @@ init()
     case $n in
         1)
             repo="https://github.com/immortalwrt/immortalwrt"
-            dir="immortalwrt"
+            dir="src/immortalwrt"
             config="https://downloads.immortalwrt.org/snapshots/targets/x86/64/config.buildinfo";;
         2)
             repo="https://github.com/coolsnowwolf/lede"
-            dir="lede";;
+            dir="src/lede";;
         3)
             repo="https://git.openwrt.org/openwrt/openwrt.git"
-            dir="openwrt"
+            dir="src/openwrt"
             config="https://downloads.openwrt.org/snapshots/targets/x86/64/config.buildinfo" ;;
         4) exit 0 ;;
         *)
@@ -49,6 +49,10 @@ init()
         ;;
     esac
 
+    if [ ! -d src ]; then
+        mkdir src
+    fi
+
     git clone -b master --single-branch $repo $dir
     if [ $? -ne 0 ]; then
         exit 1
@@ -56,10 +60,10 @@ init()
 
     cd $dir
 
-    if [ ! -d ~/openwrt/common/dl ]; then
-        mkdir -p ~/openwrt/common/dl
+    if [ ! -d ../../dl ]; then
+        mkdir -p ../../dl
     fi
-    ln -snf ~/openwrt/common/dl
+    ln -snf ../../dl
 
     ./scripts/feeds update -a && ./scripts/feeds install -a
 
@@ -75,16 +79,16 @@ init()
             echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall.git;packages" >> "feeds.conf"
             echo "src-git passwall_luci https://github.com/xiaorouji/openwrt-passwall.git;luci" >> "feeds.conf"
 
-            if [ ! -d ~/openwrt/common/fees/passwall_luci ] ; then
-                mkdir -p ~/openwrt/common/fees/passwall_luci
+            if [ ! -d ../../feeds/passwall_luci ] ; then
+                mkdir -p ../../feeds/passwall_luci
             fi
 
-            if [ ! -d ~/openwrt/common/fees/passwall_packages ] ; then
-                mkdir -p ~/openwrt/common/fees/passwall_packages
+            if [ ! -d ../../feeds/passwall_packages ] ; then
+                mkdir -p ../../feeds/passwall_packages
             fi
 
-            ln -snf ~/openwrt/common/feeds/passwall_luci feeds/passwall_luci
-            ln -snf ~/openwrt/common/feeds/passwall_packages feeds/passwall_packages
+            ln -snf ../../feeds/passwall_luci feeds/passwall_luci
+            ln -snf ../../feeds/passwall_packages feeds/passwall_packages
 
             ./scripts/feeds update passwall_luci
             ./scripts/feeds update passwall_packages
@@ -105,7 +109,18 @@ init()
     esac
 
     make menuconfig
-    make -j1 V=s defconfig download clean world
+    if read -n 1 -t 10 -rp "Build Image now? [Y/n] " input; then
+        case $input in
+            [yY][eE][sS]|[yY])
+                echo -e '\nBuilding Image Now, Please Wait...'
+                make -j1 V=s defconfig download clean world
+
+                if [ $? -ne 0 ];then
+                    exit 1
+                fi
+            ;;
+        esac
+    fi
 }
 
 if [ $# -ne 1 ] ; then
