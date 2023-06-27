@@ -1,0 +1,17 @@
+
+config ddns 'global'
+	option ddns_dateformat '%F %R'
+	option ddns_loglines '250'
+	option upd_privateip '0'
+
+config service 'ddns'
+	option service_name 'cloudflare.com-v4'
+	option lookup_host 'home.wengyihui.top'
+	option username 'wengyihui@gmail.com'
+	option password '8479da1e8244a4aa0f600e5f66f0a3eede97d'
+	option enabled '1'
+	option domain 'home@wengyihui.top'
+	option retry_interval '2'
+	option retry_unit 'minutes'
+	option check_interval '30'
+

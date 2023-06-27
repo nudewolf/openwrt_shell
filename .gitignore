@@ -3,7 +3,6 @@
 .*.swp
 /env
 /dl
-/config
 /src
 /.config
 /.config.old
