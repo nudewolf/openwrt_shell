@@ -42,4 +42,16 @@ if [ -d .git ]; then
             echo -e '***Done***\n'
         ;;
     esac
+
+    if [ ! -L files ]; then
+        read -r -p "Do you have custom config files ? [Y/n] " input
+        case $input in
+            [yY][eE][sS]|[yY])
+                echo 'Add custom config files...'
+                ln -sf $CONF_DIR/files
+
+                echo -e '***Done***\n'
+            ;;
+        esac
+    fi
 fi
