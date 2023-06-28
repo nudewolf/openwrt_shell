@@ -5,7 +5,7 @@ if [ $# != 1 ] ; then
     exit 1;
 fi
 
-if [ ! -d ./src/$1 ]; then
+if [ ! -d $1 ]; then
     echo "$1 not found! Please check it..."
     exit 1;
 fi
@@ -17,7 +17,7 @@ fi
 
 CURRENT_DIR=$(cd $(dirname $0); pwd)
 
-cd $CURRENT_DIR/src/$INPUT
+cd $CURRENT_DIR/$INPUT
 
 if [ ! -f ./scripts/feeds ];then
     echo " $INPUT is not openwrt"
@@ -43,8 +43,8 @@ if [ -d .git ]; then
         ;;
     esac
 
-    if [ ! -L files ]; then
-        read -r -p "Do you have custom config files ? [Y/n] " input
+    if [ ! -L files ] && [ -d $CONF_DIR/files ]; then
+        read -r -p "Found custom config files, use it? [Y/n]" input
         case $input in
             [yY][eE][sS]|[yY])
                 echo 'Add custom config files...'
