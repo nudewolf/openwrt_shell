@@ -4,6 +4,7 @@ bak_config()
     if read -n 1 -t 5 -rp "Backup config file now? [Y/n] " input; then
         case $input in
             [yY][eE][sS]|[yY])
+                INPUT=`echo "${INPUT}" | sed 's/src\///'`
                 CONF_DIR=../../config/${INPUT}
                 newconfig=./bin/targets/x86/64/config.buildinfo
                 bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
