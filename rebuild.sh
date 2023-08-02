@@ -1,28 +1,25 @@
 #!/usr/bin/env bash
 bak_config()
 {
-    if read -n 1 -t 5 -rp "Backup config file now? [Y/n] " input; then
-        case $input in
-            [yY][eE][sS]|[yY])
-                INPUT=`echo "${INPUT}" | sed 's/src\///'`
-                CONF_DIR=../../config/${INPUT}
-                newconfig=./bin/targets/x86/64/config.buildinfo
-                bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
+    INPUT=`echo "${INPUT}" | sed 's/src\///'`
+    CONF_DIR=../../config/${INPUT}
+    newconfig=./bin/targets/x86/64/config.buildinfo
+    bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
 
-                diff -uEZbBw $CONF_DIR/${INPUT}_defconf $newconfig 2>/dev/null
-                if [ $? -ne 0 ];then
-                    if [ ! -d $CONF_DIR ]; then
-                        mkdir -p $CONF_DIR
-                    fi
+    diff -uEZbBw $CONF_DIR/${INPUT}_defconf $newconfig 2>/dev/null
+    if [ $? -ne 0 ];then
+        if read -n 1 -t 5 -rp "Config changed, Backup it now? [Y/n] " input; then
+            case $input in
+                [yY][eE][sS]|[yY])
+                        if [ ! -d $CONF_DIR ]; then
+                            mkdir -p $CONF_DIR
+                        fi
 
-                    cp $newconfig $CONF_DIR/$bakconfig
-                    ln -snf $CONF_DIR/$bakconfig $CONF_DIR/${INPUT}_defconf
-                    echo -e '\n***Backup Done***'
-                else
-                    echo -e '\nThe same configuration file already exists'
-                fi
-            ;;
-        esac
+                        cp $newconfig $CONF_DIR/$bakconfig
+                        ln -snf $CONF_DIR/$bakconfig $CONF_DIR/${INPUT}_defconf
+                ;;
+            esac
+        fi
     fi
 }
 
