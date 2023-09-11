@@ -2,11 +2,15 @@
 bak_config()
 {
     INPUT=`echo "${INPUT}" | sed 's/src\///'`
-    CONF_DIR=../../config/${INPUT}
-    newconfig=./bin/targets/x86/64/config.buildinfo
-    bakconfig=${INPUT}_defconf_$(date "+%Y-%m-%d_%H:%M")
+# 去掉小版本
+    local CONF_FIX=${INPUT::-2} 
+    CONF_DIR=../../config/${CONF_FIX}
 
-    diff -uEZbBw $CONF_DIR/${INPUT}_defconf $newconfig 2>/dev/null
+    newconfig=./bin/targets/x86/64/config.buildinfo
+    bakconfig=$CONF_DIR/${CONF_FIX}_defconf_$(date "+%Y-%m-%d_%H:%M")
+    curconfig=$CONF_DIR/${CONF_FIX}_defconf
+
+    diff -uEZbBw $curconfig $newconfig 2>/dev/null
     if [ $? -ne 0 ];then
         if read -n 1 -t 5 -rp "Config changed, Backup it now? [Y/n] " input; then
             case $input in
@@ -15,8 +19,8 @@ bak_config()
                             mkdir -p $CONF_DIR
                         fi
 
-                        cp $newconfig $CONF_DIR/$bakconfig
-                        ln -snf $CONF_DIR/$bakconfig $CONF_DIR/${INPUT}_defconf
+                        cp $newconfig $bakconfig
+                        ln -snf $bakconfig $curconfig
                 ;;
             esac
         fi
