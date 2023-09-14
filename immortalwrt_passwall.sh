@@ -33,8 +33,8 @@ case $input in
         cp feeds.conf.default feeds.conf
 
 # 将 immortalwrt 内置 passwall 替换成最新版本
-        echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall.git;packages" >> "feeds.conf"
-        echo "src-git passwall_luci https://github.com/xiaorouji/openwrt-passwall.git;luci" >> "feeds.conf"
+        echo "src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages.git;main" >> "feeds.conf"
+        echo "src-git passwall_luci https://github.com/xiaorouji/openwrt-passwall.git;main" >> "feeds.conf"
 
         ./scripts/feeds update -a
 
