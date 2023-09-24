@@ -3,25 +3,29 @@ bak_config()
 {
     newconfig=$CURRENT_DIR/$INPUT/bin/targets/x86/64/config.buildinfo
 
-    INPUT=`echo "${INPUT}" | sed 's/src\///'`
-# 去掉小版本
-    local CONF_FIX=${INPUT::-2} 
+    INPUT=$(echo "${INPUT}" | sed 's/src\///')
+    local SMALL_VER=echo "${INPUT:0-2}"
+    if [ "${SMALL_VER}" -gt 0 ] 2>/dev/null ;then
+        local CONF_FIX=${INPUT::-2}
+    else
+        local CONF_FIX=${INPUT}
+    fi
+
     CONF_DIR=$CURRENT_DIR/config/${CONF_FIX}
 
     curconfig=${CONF_FIX}_defconf
     bakconfig=${curconfig}_$(date "+%Y-%m-%d_%H:%M")
 
-    diff -uEZbBw $CONF_DIR/$curconfig $newconfig 2>/dev/null
-    if [ $? -ne 0 ];then
+    if ! diff -uEZbBw "$CONF_DIR"/"$curconfig" "$newconfig" 2>/dev/null ;then
         if read -n 1 -t 5 -rp "Config changed, Backup it now? [Y/n] " input; then
             case $input in
                 [yY][eE][sS]|[yY])
-                        if [ ! -d $CONF_DIR ]; then
-                            mkdir -p $CONF_DIR
+                        if [ ! -d "$CONF_DIR" ]; then
+                            mkdir -p "$CONF_DIR"
                         fi
-                        cd $CONF_DIR/
-                        cp $newconfig $bakconfig
-                        ln -snf $bakconfig $curconfig
+                        cd "$CONF_DIR/" || exit
+                        cp "$newconfig" "$bakconfig"
+                        ln -snf "$bakconfig" "$curconfig"
                 ;;
             esac
         fi
@@ -31,7 +35,7 @@ bak_config()
 init()
 {
     echo "No target found, Init one? 1)immortalwrt 2)lede 3)openwrt 4)quit"
-    read n
+    read -r n
     case $n in
         1)
             repo="https://github.com/immortalwrt/immortalwrt"
@@ -56,21 +60,20 @@ init()
         mkdir src
     fi
 
-    git clone -b master --single-branch $repo $dir
-    if [ $? -ne 0 ]; then
+    if ! git clone -b master --single-branch $repo $dir; then
         exit 1
     fi
 
-    cd $dir
+    cd "$dir" || exit
 
     if [ ! -d ../../dl ]; then
         mkdir -p ../../dl
     fi
-    ln -snf ../../dl
+    ln -snf ../../dl .
 
     ./scripts/feeds update -a && ./scripts/feeds install -a
 
-    if [ -n $config ]; then
+    if [ -n "$config" ]; then
         wget https://downloads.immortalwrt.org/snapshots/targets/x86/64/config.buildinfo -O .config
     fi
 
@@ -116,9 +119,8 @@ init()
         case $input in
             [yY][eE][sS]|[yY])
                 echo -e '\nBuilding Image Now, Please Wait...'
-                make -j1 V=s defconfig download clean world
 
-                if [ $? -ne 0 ];then
+                if ! make -j1 V=s defconfig download clean world ;then
                     exit 1
                 fi
             ;;
@@ -132,13 +134,13 @@ if [ $# -ne 1 ] ; then
 fi
 
 INPUT=$1
-if [ `echo ${INPUT: -1}` = "/" ]; then
-    INPUT=`echo ${INPUT%?}`
+if [ "${INPUT: -1}" = "/" ]; then
+    INPUT=${INPUT::-1}
 fi
 
-CURRENT_DIR=$(cd $(dirname $0); pwd)
+CURRENT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
-cd $CURRENT_DIR/$INPUT
+cd "$CURRENT_DIR/$INPUT" || exit
 
 if [ ! -f ./scripts/feeds ];then
     echo " $INPUT is not openwrt"
@@ -147,8 +149,7 @@ fi
 
 if [ -d .git ]; then
     echo 'Update Openwrt Source...'
-    git pull
-    if [ $? -ne 0 ]; then
+    if ! git pull; then
         exit 1
     fi
     printf '\n'
@@ -163,8 +164,8 @@ if read -n 1 -t 10 -rp "Rebuild Image now? [Y/n] " input; then
     case $input in
         [yY][eE][sS]|[yY])
             echo -e '\nRebuilding Image Now, Please Wait...'
-            make -j$(nproc) defconfig world
-            if [ $? -ne 0 ];then
+
+            if ! make "-j$(nproc) defconfig world";then
                 exit 1
             fi
 
@@ -180,12 +181,12 @@ if read -n 1 -t 10 -rp "Rebuild F**GFW now? [Y/n] " input; then
     case $input in
         [yY][eE][sS]|[yY])
             echo -e '\nRebuilding F**GFW Now, Please Wait...'
-            passwall=`find package/feeds/ -name "luci-app-passwall"`
-            if [ -z $passwall ];then
+            passwall=$(find package/feeds/ -name "luci-app-passwall")
+            if [ -z "$passwall" ];then
                 echo -e "Passwall not found\n"
                 exit 1
             fi
-            make $passwall/{clean,compile}
+            make "$passwall/{clean,compile}"
         ;;
     esac
 fi
