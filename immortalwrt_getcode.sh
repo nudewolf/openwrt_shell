@@ -2,22 +2,17 @@
 INPUT=$1
 
 if [ ! -d src ]; then
-        mkdir src
+    mkdir src
 fi
 
-wget -P src https://github.com/immortalwrt/immortalwrt/archive/refs/tags/${INPUT}
-
-if [ $? -ne 0 ]; then
+if ! wget -P src https://github.com/immortalwrt/immortalwrt/archive/refs/tags/"${INPUT}"; then
     exit 1
 fi
 
-cd src
+cd src || exit
 
-tar -xvf ${INPUT} 
-
-if [ $? -ne 0 ]; then
+if ! tar -xvf "${INPUT}"; then
     exit 1
 fi
 
-rm ${INPUT}
-
+rm "${INPUT}"
