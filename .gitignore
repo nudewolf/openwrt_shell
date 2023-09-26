@@ -31,3 +31,4 @@ git-src
 .cproject
 .ccache
 .vscode
+*_defconf
